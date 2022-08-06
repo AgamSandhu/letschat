@@ -24,3 +24,43 @@ const firebaseConfig = {
       });
       document.getElementById("msg").innerHTML=""; 
   }
+
+  function getdata() {
+      firebase.database().ref("/"+room_name).on('value',function(snapshot){
+          document.getElementById("output").innerHTML=""; 
+          snapshot.forEach(function(childSnapshot){
+              childkey=childSnapshot.key; 
+              childData=childSnapshot.val();
+              if(childkey!="purpose"){
+                  firebase_message_id=childkey; 
+                  message_data=childData;
+                  console.log(message_data); 
+                  name=message_data['name']; 
+                  message=message_data['message']; 
+                  like=message_data['like']; 
+                  row="<h4>"+name+"<img class='user_tick' src='tick.png'></h4><h4 class='message_h4'>"+message+"</h4>"
+                  row=row+"<button class='btn btn-waring' id='"+firebase_message_id+"' value='"+like+"' onclick='updateLike(this.id)'>"
+                  row=row+"<span classs='glyphicon glyphiconicon-thumbs-up'>Like: "+like+"</span></button></hr>";
+                  document.getElementById("output").innerHTML+=row;
+              }
+          });
+      });
+  }
+
+  getdata(); 
+
+  function updateLike(message_id){
+      button_id=message_id; 
+      likes=document.getElementById(button_id).value; 
+      likes_in_number=Number(likes)+1;
+      console.log(likes_in_number); 
+      firebase.database().ref(room_name).child(message_id).update({
+          like:likes_in_number
+      }); 
+  }
+
+  function logout() {
+    localStorage.removeItem("user_name"); 
+    localStorage.removeItem("room_name")
+    window.location="index.html"
+}
